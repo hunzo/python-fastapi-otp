@@ -1,0 +1,32 @@
+version: '3.9'
+services:
+  redis:
+    image: redis
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+    networks:
+      - backend-net
+  
+  redis-mgmt:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOST=redis
+    ports:
+      - 8081:8081
+    restart: unless-stopped
+    networks:
+      - backend-net
+
+  otp:
+    build: .
+    command: uvicorn app:app --host 0.0.0.0 --port 8000
+    env_file:
+      - .prod.env
+    ports:
+      - 8000:8000
+    networks:
+      - backend-net
+
+networks:
+  backend-net:
